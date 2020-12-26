@@ -83,7 +83,7 @@ def setup_sidebar(player):
 def setup_page_preview():
     st.title("NBA salaries prediction demo")
     """This is a test model aims to predict NBA player salaries based on their 
-    statistic in 2017-2018 season (https://www.kaggle.com/aishjun/nba-salaries-prediction-in-20172018-season)"""
+    statistic in 2017-2018 season. """
     """Follow the instructions below to calculate a prediction.
     """
     st.title("*1. Enter player name.*")
@@ -130,9 +130,13 @@ def create_output(player, feature_values):
         with right_col:
             fig = plot_power_angle(neighs)
             st.write(fig)
+            st.write("*PER - Player efficiency rate*")
+            st.write("*BPM - box plus minus*")
+            st.write("*USG% - usage percentage*")
+            st.write("For details - visit https://www.basketball-reference.com/about/glossary.html")
             # base salary prediction
         predicted_salary = get_salary_prediction(feature_values)
-        st.success("Predicted salary for " + player + ": " + str(predicted_salary))
+        st.success("Predicted salary for " + player + ": " + str(predicted_salary) + " $")
     st.title("*3. Enjoy! *")
 
 def show_league_stat():
