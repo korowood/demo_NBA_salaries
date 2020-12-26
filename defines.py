@@ -3,7 +3,8 @@ from sklearn.neighbors import NearestNeighbors
 
 # dataset
 DATASET_PATH = '2017-18_NBA_salary.csv'
-SALARY_PREDICTION_MODEL_PATH = 'NBA_salary_prediction_dump.pkl'
+SEASON_STATS_DATASET_PATH = 'nba_17_18.csv'
+SALARY_PREDICTION_MODEL_PATH = 'salary_model.pkl'
 KNN_MODEL_PATH = 'knn_model.pkl'
 
 # base options able to set
@@ -13,7 +14,7 @@ INTEGER_FEATURES = ["NBA_DraftNumber", "Age"]
 SEASON_GAMES_COUNT = 82 # i scale MP written as a season playing time to average per game
 
 # set a name for default unfamous player
-NEW_PLAYER = 'Abstract player' 
+ABSTRACT_PLAYER = 'Abstract player' 
 
 # define bounds and initial filling for sliders
 DEFAULT_FEATURES_RANGE = pd.DataFrame({

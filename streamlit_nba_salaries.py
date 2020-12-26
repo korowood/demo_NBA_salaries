@@ -5,7 +5,8 @@ import numpy as np
 import joblib
 
 from defines import *
-from plotting import plot_salaries_hist, plot_power_angle
+from plotting import plot_salaries_hist, plot_power_angle, \
+                    foo_point_leader, top_20_point
 
 st.set_page_config(layout="wide")
 
@@ -14,6 +15,11 @@ st.set_page_config(layout="wide")
 def read_dataset():
     df = pd.read_csv(DATASET_PATH)
     return df[DEFAULT_CONTROL_FEATURES + ['Player', 'Salary']]
+
+@st.cache
+def read_stats_dataset():
+    df = pd.read_csv(SEASON_STATS_DATASET_PATH)
+    return df
 
 @st.cache
 def __get_unique_players_list():
@@ -36,7 +42,7 @@ def __create_features_initial_filling(player):
     features = {
         feature: DEFAULT_FEATURES_RANGE.loc[feature]['min'] for feature in DEFAULT_CONTROL_FEATURES
         }
-    if player != NEW_PLAYER:
+    if player != ABSTRACT_PLAYER:
         idx = df[df.Player == player].index[0]
         for feature in DEFAULT_CONTROL_FEATURES:
             features[feature] = df.loc[idx][feature]
@@ -84,13 +90,16 @@ def setup_page_preview():
     """You may choose any active player, or if you want, you could set up a player with your own parameters.
     In this case, you should either select 'Abstract player' or set up advanced settings for any player."""
     #player = st.text_input("", '')
-    player = st.selectbox("", [NEW_PLAYER] + __get_unique_players_list())
+    player = st.selectbox("", [ABSTRACT_PLAYER] + __get_unique_players_list())
     """Optional. You may set player's parameters in the sidebar in the left part of the screen.
     It may help you to understand the importance of different stats for player's salary. """
     st.title("*2. When you're ready, press the button. *")
     return player
 
 def get_salary_prediction(feature_values):
+    # some shit stuff, pre feature engineering
+    feature_values[0][1] = np.abs(30 - feature_values[0][1])
+    # then as it should be
     model = load_pred_model()
     ans = np.expm1(model.predict(feature_values))[0][0]
     ans = max(MODEL_MIN_VALUE, ans)
@@ -111,8 +120,6 @@ def create_output(player, feature_values):
     # logically separate field for output
     # perform result based on button click
     if st.button('Predict'):
-        # base salary prediction
-        predicted_salary = get_salary_prediction(feature_values)
         # get closest players
         neighs = get_nearest_players(player, feature_values)
         # plot what we decided to plot
@@ -123,10 +130,24 @@ def create_output(player, feature_values):
         with right_col:
             fig = plot_power_angle(neighs)
             st.write(fig)
+            # base salary prediction
+        predicted_salary = get_salary_prediction(feature_values)
         st.success("Predicted salary for " + player + ": " + str(predicted_salary))
     st.title("*3. Enjoy! *")
 
- 
+def show_league_stat():
+    stats_dataset = read_stats_dataset()
+    is_show_league_stat = st.checkbox('Show me some league facts')
+    if is_show_league_stat:
+        left_col, right_col = st.beta_columns(2)
+        with left_col:
+            fig = foo_point_leader(stats_dataset)
+            st.write(fig)
+        with right_col:
+            fig = top_20_point(stats_dataset)
+            st.write(fig)
+
+
 def main():
     # setup pages and returns its fields
     player = setup_page_preview()
@@ -135,6 +156,8 @@ def main():
     feature_values = [[v for _, v in num_features_dict.items()]]
     # create output
     create_output(player, feature_values)
+    # display league stat
+    show_league_stat()
 
 
 if __name__ == "__main__":
